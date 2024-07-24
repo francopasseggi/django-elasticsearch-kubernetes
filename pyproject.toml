@@ -1,0 +1,31 @@
+[tool.ruff]
+fix = true
+line-length = 100
+lint.select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+]
+lint.ignore = [
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+exclude = ["**/migrations"]
+
+# Assume Python 3.12
+target-version = "py312"
+
+[tool.pytest.ini_options]
+python_files = [
+    "test_*.py",
+    "*_test.py",
+    "testing/python/*.py",
+    "test*.py",
+    "tests/*.py",
+    "tests.py"
+]
+DJANGO_SETTINGS_MODULE = "core.settings"

@@ -1,0 +1,6 @@
+djangorestframework
+drf-spectacular
+psycopg2
+ruff
+pytest
+pytest-django

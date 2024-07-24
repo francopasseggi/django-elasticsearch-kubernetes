@@ -1,0 +1,27 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+{
+	"name": "CSV Processor",
+	"dockerComposeFile": "../docker-compose.yaml",
+	// This runs /bin/sh -c "while sleep 1000; do :; done" when starting the container. Useful for development and debugging. 	
+	"overrideCommand": true,
+	"service": "app",
+	"workspaceFolder": "/app",
+	// Run commands after the container is created. We avoid rebuilding the image when requirements.txt changes (for dev).
+	"postCreateCommand": " cd /app && pip3 install --user -r requirements.txt",
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"eamodio.gitlens",
+				"ms-azuretools.vscode-docker",
+				"ms-vscode.makefile-tools",
+				"gruntfuggly.todo-tree",
+				"charliermarsh.ruff"
+			],
+			"settings": {
+				"python.defaultInterpreterPath": "/usr/local/bin/python"
+			}
+		}
+	}
+}
