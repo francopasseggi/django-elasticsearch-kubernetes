@@ -4,3 +4,7 @@ psycopg2
 ruff
 pytest
 pytest-django
+celery
+botocore
+boto3
+pycurl

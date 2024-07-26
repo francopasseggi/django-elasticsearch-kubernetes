@@ -135,3 +135,18 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
+
+
+# Celery settings
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", default="sqs://elasticmq:9324")
+CELERY_TASK_DEFAULT_QUEUE = os.environ.get("CELERY_TASK_DEFAULT_QUEUE", default="sublime")
+CELERY_BROKER_TRANSPORT_OPTIONS = {"region": os.environ.get("AWS_REGION", default="us-east-1")}
+
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE
+
+# Celery task time limits
+CELERY_TASK_TIME_LIMIT = 5 * 60  # 5 minutes
+CELERY_TASK_SOFT_TIME_LIMIT = 4 * 60  # 4 minutes

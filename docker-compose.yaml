@@ -2,6 +2,7 @@ version: "3.4"
 
 volumes:
   postgres_data:
+  elasticmq:
 
 
 services:
@@ -30,3 +31,11 @@ services:
     environment:
       - POSTGRES_DB=sublime
       - POSTGRES_HOST_AUTH_METHOD=trust
+
+  elasticmq:
+    image: softwaremill/elasticmq
+    ports:
+      - "9324:9324"
+      - "9325:9325"
+    volumes:
+      - elasticmq:/data/elasticmq.db

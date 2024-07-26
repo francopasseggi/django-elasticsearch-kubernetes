@@ -32,3 +32,6 @@ format: setup
 
 check: setup
 	python -m ruff check .
+
+worker: setup
+	cd src && celery -A core worker -l info

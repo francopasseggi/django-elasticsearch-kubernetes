@@ -4,5 +4,5 @@ from organizations.models import Organization
 
 
 @shared_task
-def count_widgets():
+def count_organizations():
     return Organization.objects.count()
