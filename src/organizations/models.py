@@ -27,3 +27,19 @@ class Organization(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ProcessingJob(models.Model):
+    class Status(models.TextChoices):
+        PENDING = "PENDING"
+        SUCCESS = "SUCCESS"
+        ERROR = "ERROR"
+
+    file = models.FileField(upload_to="uploads/")
+    status = models.CharField(choices=Status.choices, default=Status.PENDING)
+    started_at = models.DateTimeField(blank=True, null=True)
+    finished_at = models.DateTimeField(blank=True, null=True)
+    error_message = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.file.name

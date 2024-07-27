@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "drf_spectacular",
     "rest_framework",
+    "django_extensions",
     "organizations",
 ]
 
@@ -150,3 +151,25 @@ CELERY_TIMEZONE = TIME_ZONE
 # Celery task time limits
 CELERY_TASK_TIME_LIMIT = 5 * 60  # 5 minutes
 CELERY_TASK_SOFT_TIME_LIMIT = 4 * 60  # 4 minutes
+
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+
+AWS_ACCESS_KEY_ID = "ROOTNAME"
+AWS_SECRET_ACCESS_KEY = "ROOTPASSWORD"
+AWS_S3_ENDPOINT_URL = "http://minio:9000"
+
+DEFAULT_FILE_STORAGE = "minio_storage.storage.MinioMediaStorage"
+STATICFILES_STORAGE = "minio_storage.storage.MinioStaticStorage"
+MINIO_STORAGE_ENDPOINT = "minio:9000"
+
+MINIO_STORAGE_ACCESS_KEY = AWS_ACCESS_KEY_ID
+MINIO_STORAGE_SECRET_KEY = AWS_SECRET_ACCESS_KEY
+
+MINIO_STORAGE_USE_HTTPS = False
+MINIO_STORAGE_MEDIA_OBJECT_METADATA = {"Cache-Control": "max-age=1000"}
+MINIO_STORAGE_MEDIA_BUCKET_NAME = "media"
+MINIO_STORAGE_MEDIA_BACKUP_BUCKET = "Recycle Bin"
+MINIO_STORAGE_MEDIA_BACKUP_FORMAT = "%c/"
+MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET = True
+MINIO_STORAGE_STATIC_BUCKET_NAME = "static"
+MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET = True

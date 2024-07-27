@@ -3,6 +3,7 @@ version: "3.4"
 volumes:
   postgres_data:
   elasticmq:
+  minio-data:
 
 
 services:
@@ -11,12 +12,30 @@ services:
     restart: always
     build: .
     depends_on:
+      - minio
       - db
+      - elasticmq
+      - redis
     ports:
       - "8000:8000"
     volumes:
       - .:/app:cached
     working_dir: /app
+    env_file:
+      - .env
+
+  worker:
+    restart: always
+    build: .
+    depends_on:
+      - minio
+      - db
+      - elasticmq
+      - redis
+    volumes:
+      - .:/app:cached
+    working_dir: /app/src
+    command: celery -A core worker -l INFO
     env_file:
       - .env
 
@@ -32,6 +51,20 @@ services:
       - POSTGRES_DB=sublime
       - POSTGRES_HOST_AUTH_METHOD=trust
 
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ROOTNAME
+      MINIO_ROOT_PASSWORD: ROOTPASSWORD
+    volumes:
+      - minio-data:/data
+    command: server /data  --console-address ":9001"
+
   elasticmq:
     image: softwaremill/elasticmq
     ports:
@@ -39,3 +72,8 @@ services:
       - "9325:9325"
     volumes:
       - elasticmq:/data/elasticmq.db
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"

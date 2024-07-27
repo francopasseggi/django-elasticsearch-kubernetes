@@ -8,3 +8,5 @@ celery
 botocore
 boto3
 pycurl
+django-minio-storage
+redis

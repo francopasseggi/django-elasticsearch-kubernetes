@@ -1,4 +1,5 @@
-from organizations.models import Country, Industry, Organization
+from organizations.models import Country, Industry, Organization, ProcessingJob
+from organizations.tasks import process_csv
 
 
 def create_organization(data):
@@ -15,3 +16,12 @@ def create_organization(data):
         industry=industry,
         number_of_employees=data["number_of_employees"],
     )
+
+
+def create_processing_job(file):
+    processing_job = ProcessingJob.objects.create(file=file)
+    process_csv.delay(processing_job.id)
+    return {
+        "file": processing_job.file.url,
+        "processing_status": processing_job.status,
+    }

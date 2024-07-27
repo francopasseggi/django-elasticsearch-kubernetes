@@ -20,7 +20,6 @@ makemigrations: setup
 runserver: setup
 	python src/manage.py runserver 0.0.0.0:8000
 
-
 test: setup
 	pytest
 
@@ -35,3 +34,6 @@ check: setup
 
 worker: setup
 	cd src && celery -A core worker -l info
+
+shell: setup
+	python src/manage.py shell_plus
