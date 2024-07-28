@@ -8,5 +8,7 @@ celery
 botocore
 boto3
 pycurl
-django-minio-storage
+django-minio-storage # For local s3 like storage
 redis
+django-elasticsearch-dsl
+django-extensions  # For shell_plus

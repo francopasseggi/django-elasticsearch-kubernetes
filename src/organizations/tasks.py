@@ -6,7 +6,10 @@ from celery import chord, group, shared_task
 from celery.utils.log import get_task_logger
 from django.core.cache import cache
 from django.core.files import File
+from elasticsearch.helpers import bulk
+from elasticsearch_dsl import connections
 
+from organizations.documents import OrganizationDocument
 from organizations.models import Country, Industry, Organization, ProcessingJob
 
 logger = get_task_logger(__name__)
@@ -31,7 +34,7 @@ def process_csv(job_id: int) -> None:
         chunk_processor = ChunkProcessor()
 
         chains = [
-            chunk_processor.process_chunk.s(chunk) | index_chunk.s(job_id)
+            chunk_processor.process_chunk.s(chunk) | index_chunk.s()
             for chunk in file_processor.get_chunks()
         ]
 
@@ -149,9 +152,41 @@ class CacheManager:
     acks_late=True,
     name="index_organizations",
 )
-def index_chunk(self, organization_ids: list[int], job_id: int) -> int:
-    logger.info("Not implemented yet")
-    return len(organization_ids)
+def index_chunk(self, organization_ids: list[int]) -> int:
+    try:
+        client = connections.get_connection()
+        organizations = Organization.objects.filter(id__in=organization_ids)
+
+        actions = [
+            {
+                "_index": OrganizationDocument._index._name,
+                "_id": org.organization_id,
+                "_source": {
+                    "id": org.id,
+                    "organization_id": org.organization_id,
+                    "name": org.name,
+                    "website": org.website,
+                    "country": org.country.name,
+                    "description": org.description,
+                    "founded": org.founded,
+                    "industry": org.industry.type,
+                    "number_of_employees": org.number_of_employees,
+                },
+                "doc_as_upsert": True,
+            }
+            for org in organizations
+        ]
+        _, failed = bulk(client, actions)
+
+        if failed:
+            logger.error(f"Failed to index organizations: {failed}")
+            raise IndexingError(f"Indexing failed for {len(failed)} organizations")
+
+        return organizations.count()
+
+    except Exception as exc:
+        logger.exception("Error during organization indexing")
+        raise self.retry(exc=exc)
 
 
 @shared_task(bind=True, acks_late=True)

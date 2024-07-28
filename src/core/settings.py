@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "rest_framework",
     "django_extensions",
+    "django_elasticsearch_dsl",
     "organizations",
 ]
 
@@ -173,3 +174,22 @@ MINIO_STORAGE_MEDIA_BACKUP_FORMAT = "%c/"
 MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET = True
 MINIO_STORAGE_STATIC_BUCKET_NAME = "static"
 MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET = True
+
+
+# Cache settings
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://redis:6379",
+    }
+}
+
+# Elasticsearch settings
+ELASTICSEARCH_DSL = {
+    "default": {
+        "hosts": "http://elasticsearch:9200",
+    }
+}
+
+# Use Celery to process signals
+ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = "django_elasticsearch_dsl.signals.CelerySignalProcessor"

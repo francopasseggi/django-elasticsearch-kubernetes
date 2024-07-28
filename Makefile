@@ -37,3 +37,6 @@ worker: setup
 
 shell: setup
 	python src/manage.py shell_plus
+
+index: setup
+	python src/manage.py search_index --rebuild	
