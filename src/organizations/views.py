@@ -6,6 +6,7 @@ from rest_framework.exceptions import NotFound
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
+from organizations.paginator import ElasticsearchCursorPagination
 from organizations.serializers import (
     FileUploadResponseSerializer,
     FileUploadSerializer,
@@ -120,11 +121,12 @@ def search_organization_view(request):
     )
 
     search_query = build_organization_search_query(request.query_params)
-    organization_documents = search_query.execute()
+    paginator = ElasticsearchCursorPagination()
 
-    serializer = OrganizationCreateSerializer(organization_documents, many=True)
-    return Response(serializer.data)
+    page = paginator.paginate_queryset(search_query, request)
 
+    serializer = OrganizationCreateSerializer(page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 @extend_schema(
     parameters=[

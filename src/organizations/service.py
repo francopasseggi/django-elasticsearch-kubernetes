@@ -58,5 +58,6 @@ def build_organization_search_query(query_params):
 
     return s
 
+
 def get_organization(organization_id):
     return OrganizationDocument.get(id=organization_id)
