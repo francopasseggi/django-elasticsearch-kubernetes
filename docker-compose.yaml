@@ -73,6 +73,7 @@ services:
       - "9325:9325"
     volumes:
       - elasticmq:/data/elasticmq.db
+      - ./elasticmq.conf:/opt/elasticmq.conf
 
   redis:
     image: redis:7-alpine
