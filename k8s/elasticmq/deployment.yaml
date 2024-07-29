@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elasticmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticmq
+  template:
+    metadata:
+      labels:
+        app: elasticmq
+    spec:
+      containers:
+        - name: elasticmq
+          image: softwaremill/elasticmq
+          ports:
+            - containerPort: 9324
+            - containerPort: 9325
+          volumeMounts:
+            - name: elasticmq-config
+              mountPath: /opt/elasticmq.conf
+              subPath: elasticmq.conf
+            - name: elasticmq-data
+              mountPath: /data
+      volumes:
+        - name: elasticmq-config
+          configMap:
+            name: elasticmq-config
+        - name: elasticmq-data
+          emptyDir: {}

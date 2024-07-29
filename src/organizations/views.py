@@ -2,18 +2,17 @@ from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_sche
 from elasticsearch.exceptions import NotFoundError as ElasticsearchNotFoundError
 from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes
-from rest_framework.exceptions import NotFound
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
-from organizations.paginator import ElasticsearchCursorPagination
+from organizations.paginators import ElasticsearchCursorPagination
 from organizations.serializers import (
     FileUploadResponseSerializer,
     FileUploadSerializer,
     OrganizationCreateSerializer,
     OrganizationListRequestQueryParamsSerializer,
 )
-from organizations.service import (
+from organizations.services import (
     build_organization_search_query,
     create_organization,
     create_processing_job,
@@ -110,23 +109,29 @@ def upload_csv_view(request):
             description="Search results",
         ),
         400: OpenApiResponse(description="Bad request. Validation errors in the query parameters."),
+        404: OpenApiResponse(description="Index not found"),
     },
     description="List and search organizations with optional filters and pagination.",
 )
 @api_view(["GET"])
 def search_organization_view(request):
-    # Validate and build the search query
-    OrganizationListRequestQueryParamsSerializer(data=request.query_params).is_valid(
-        raise_exception=True
-    )
+    try:
+        # Validate and build the search query
+        OrganizationListRequestQueryParamsSerializer(data=request.query_params).is_valid(
+            raise_exception=True
+        )
 
-    search_query = build_organization_search_query(request.query_params)
-    paginator = ElasticsearchCursorPagination()
+        search_query = build_organization_search_query(request.query_params)
+        paginator = ElasticsearchCursorPagination()
 
-    page = paginator.paginate_queryset(search_query, request)
+        page = paginator.paginate_queryset(search_query, request)
 
-    serializer = OrganizationCreateSerializer(page, many=True)
-    return paginator.get_paginated_response(serializer.data)
+        serializer = OrganizationCreateSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    except ElasticsearchNotFoundError as e:
+        return Response({"detail": e.error}, status=status.HTTP_404_NOT_FOUND)
+
 
 @extend_schema(
     parameters=[
@@ -152,5 +157,5 @@ def get_organization_view(request, organization_id):
         organization = get_organization(organization_id)
         serializer = OrganizationCreateSerializer(organization)
         return Response(serializer.data)
-    except ElasticsearchNotFoundError:
-        raise NotFound("Organization not found")
+    except ElasticsearchNotFoundError as e:
+        return Response({"detail": e.error}, status=status.HTTP_404_NOT_FOUND)

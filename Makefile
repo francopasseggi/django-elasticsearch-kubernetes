@@ -39,4 +39,10 @@ shell: setup
 	python src/manage.py shell_plus
 
 index: setup
-	python src/manage.py search_index --rebuild	
+	python src/manage.py search_index --create
+
+k8s_migrate:
+	kubectl exec $$(kubectl get pod -l app=app -o jsonpath="{.items[0].metadata.name}") -- python /app/src/manage.py migrate
+
+k8s_index:
+	kubectl exec $$(kubectl get pod -l app=app -o jsonpath="{.items[0].metadata.name}") -- python /app/src/manage.py search_index --rebuild -f

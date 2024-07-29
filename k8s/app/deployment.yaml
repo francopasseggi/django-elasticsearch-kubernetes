@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+        - name: app
+          image: sublime:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: app-config
+      # Run migrations before starting the app
+      # Normally done as a CD pipeline step, but for simplicity we do it here
+      initContainers:
+        - name: run-migrations
+          image: sublime:latest
+          imagePullPolicy: Never
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              #!/bin/sh
+              set -e
+
+              # Function to check if PostgreSQL is ready
+              postgres_ready() {
+                python << END
+              import sys
+              import psycopg2
+              try:
+                  conn = psycopg2.connect(
+                      dbname="${DB_NAME}",
+                      user="${DB_USER}",
+                      password="${DB_PASSWORD}",
+                      host="${DB_HOST}",
+                      port="${DB_PORT}",
+                  )
+              except psycopg2.OperationalError:
+                  sys.exit(-1)
+              sys.exit(0)
+              END
+              }
+
+              # Wait for PostgreSQL to become ready
+              until postgres_ready; do
+                >&2 echo "PostgreSQL is unavailable - sleeping"
+                sleep 1
+              done
+
+              >&2 echo "PostgreSQL is up - running migrations"
+              python src/manage.py migrate
+          envFrom:
+            - configMapRef:
+                name: app-config

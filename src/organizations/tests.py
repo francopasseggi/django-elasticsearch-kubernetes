@@ -1,7 +1,7 @@
 import pytest
 
 from organizations.models import Organization
-from organizations.service import create_organization
+from organizations.services import create_organization
 
 
 @pytest.mark.django_db

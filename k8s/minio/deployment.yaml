@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  labels:
+    app: minio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+        - name: minio
+          image: minio/minio
+          ports:
+            - containerPort: 9000
+            - containerPort: 9001
+          env:
+            - name: MINIO_ROOT_USER
+              value: ROOTNAME
+            - name: MINIO_ROOT_PASSWORD
+              value: ROOTPASSWORD
+            - name: MINIO_DEFAULT_BUCKETS
+              value: "media"
+          command:
+            - /bin/bash
+            - -c
+          args:
+            - minio server /data --console-address :9001
+          volumeMounts:
+            - name: minio-storage
+              mountPath: "/data"
+      volumes:
+        - name: minio-storage
+          emptyDir: {}

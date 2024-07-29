@@ -9,4 +9,5 @@ RUN --mount=type=bind,source=requirements.txt,target=/tmp/requirements.txt \
 
 COPY src /app/src
 
+WORKDIR /app
 CMD ["python", "src/manage.py", "runserver", "0.0.0.0:8000"]

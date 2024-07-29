@@ -13,6 +13,7 @@ services:
     restart: always
     build: .
     depends_on:
+      - migrations
       - minio
       - db
       - elasticmq
@@ -37,6 +38,19 @@ services:
       - .:/app:cached
     working_dir: /app/src
     command: celery -A core worker -l INFO
+    env_file:
+      - .env
+
+  migrations:
+    container_name: migrations
+    restart: no
+    build: .
+    depends_on:
+      - db
+    volumes:
+      - .:/app:cached
+    working_dir: /app/src
+    command: python manage.py migrate
     env_file:
       - .env
 
@@ -67,6 +81,7 @@ services:
     command: server /data  --console-address ":9001"
 
   elasticmq:
+    container_name: elasticmq
     image: softwaremill/elasticmq
     ports:
       - "9324:9324"
@@ -76,6 +91,7 @@ services:
       - ./elasticmq.conf:/opt/elasticmq.conf
 
   redis:
+    container_name: redis
     image: redis:7-alpine
     ports:
       - "6379:6379"
