@@ -9,7 +9,7 @@ def create_organization(data):
     country, _ = Country.objects.get_or_create(name=data["country"])
     industry, _ = Industry.objects.get_or_create(type=data["industry"])
 
-    Organization.objects.create(
+    organization = Organization.objects.create(
         organization_id=data["organization_id"],
         name=data["name"],
         website=data["website"],
@@ -19,6 +19,8 @@ def create_organization(data):
         industry=industry,
         number_of_employees=data["number_of_employees"],
     )
+
+    return organization
 
 
 def create_processing_job(file):

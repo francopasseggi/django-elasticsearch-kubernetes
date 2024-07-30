@@ -141,12 +141,8 @@ SPECTACULAR_SETTINGS = {
 
 # Celery settings
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", default="sqs://elasticmq:9324")
-CELERY_TASK_DEFAULT_QUEUE = os.environ.get(
-    "CELERY_TASK_DEFAULT_QUEUE", default="sublime"
-)
-CELERY_BROKER_TRANSPORT_OPTIONS = {
-    "region": os.environ.get("AWS_REGION", default="us-east-1")
-}
+CELERY_TASK_DEFAULT_QUEUE = os.environ.get("CELERY_TASK_DEFAULT_QUEUE", default="sublime")
+CELERY_BROKER_TRANSPORT_OPTIONS = {"region": os.environ.get("AWS_REGION", default="us-east-1")}
 
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
@@ -196,6 +192,4 @@ ELASTICSEARCH_DSL = {
 }
 
 # Use Celery to process signals
-ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = (
-    "django_elasticsearch_dsl.signals.CelerySignalProcessor"
-)
+ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = "django_elasticsearch_dsl.signals.CelerySignalProcessor"
