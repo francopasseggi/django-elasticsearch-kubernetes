@@ -2,7 +2,7 @@ from django_elasticsearch_dsl import Document, fields
 from django_elasticsearch_dsl.registries import registry
 from elasticsearch_dsl import analyzer
 
-from .models import Organization
+from organizations.models import Organization
 
 # Define a custom analyzer for the all_text field
 all_text_analyzer = analyzer(
@@ -70,6 +70,6 @@ class OrganizationDocument(Document):
     def prepare_industry(self, instance):
         return instance.industry.type
 
-    def get_id(self):
-        """Use organization_id as the document _id"""
-        return self.organization_id
+    @classmethod
+    def generate_id(cls, object_instance):
+        return object_instance.organization_id
