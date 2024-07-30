@@ -18,11 +18,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
-DEBUG = bool(os.environ.get("DJANGO_DEBUG", None))
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 
-
-ALLOWED_HOSTS = ["*"]
-
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
 
 # Application definition
 
@@ -70,12 +68,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "core.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    # Use PostgreSQL
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.environ.get("DB_NAME"),
@@ -85,7 +81,6 @@ DATABASES = {
         "PORT": os.environ.get("DB_PORT"),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -105,7 +100,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -116,7 +110,6 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
@@ -138,56 +131,56 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
-
 # Celery settings
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", default="sqs://elasticmq:9324")
-CELERY_TASK_DEFAULT_QUEUE = os.environ.get("CELERY_TASK_DEFAULT_QUEUE", default="sublime")
-CELERY_BROKER_TRANSPORT_OPTIONS = {"region": os.environ.get("AWS_REGION", default="us-east-1")}
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "sqs://elasticmq:9324")
+CELERY_TASK_DEFAULT_QUEUE = os.environ.get("CELERY_TASK_DEFAULT_QUEUE", "sublime")
+CELERY_BROKER_TRANSPORT_OPTIONS = {"region": os.environ.get("AWS_REGION", "us-east-1")}
 
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 
-# Celery task time limits
-CELERY_TASK_TIME_LIMIT = 5 * 60  # 5 minutes
-CELERY_TASK_SOFT_TIME_LIMIT = 4 * 60  # 4 minutes
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://redis:6379/0")
 
-CELERY_RESULT_BACKEND = "redis://redis:6379/0"
-
-AWS_ACCESS_KEY_ID = "ROOTNAME"
-AWS_SECRET_ACCESS_KEY = "ROOTPASSWORD"
-AWS_S3_ENDPOINT_URL = "http://minio:9000"
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL", "http://minio:9000")
 
 DEFAULT_FILE_STORAGE = "minio_storage.storage.MinioMediaStorage"
 STATICFILES_STORAGE = "minio_storage.storage.MinioStaticStorage"
-MINIO_STORAGE_ENDPOINT = "minio:9000"
+MINIO_STORAGE_ENDPOINT = os.environ.get("MINIO_STORAGE_ENDPOINT", "minio:9000")
 
 MINIO_STORAGE_ACCESS_KEY = AWS_ACCESS_KEY_ID
 MINIO_STORAGE_SECRET_KEY = AWS_SECRET_ACCESS_KEY
 
-MINIO_STORAGE_USE_HTTPS = False
+MINIO_STORAGE_USE_HTTPS = os.environ.get("MINIO_STORAGE_USE_HTTPS", "False").lower() == "true"
 MINIO_STORAGE_MEDIA_OBJECT_METADATA = {"Cache-Control": "max-age=1000"}
-MINIO_STORAGE_MEDIA_BUCKET_NAME = "media"
-MINIO_STORAGE_MEDIA_BACKUP_BUCKET = "Recycle Bin"
-MINIO_STORAGE_MEDIA_BACKUP_FORMAT = "%c/"
-MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET = True
-MINIO_STORAGE_STATIC_BUCKET_NAME = "static"
-MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET = True
-
+MINIO_STORAGE_MEDIA_BUCKET_NAME = os.environ.get("MINIO_STORAGE_MEDIA_BUCKET_NAME", "media")
+MINIO_STORAGE_MEDIA_BACKUP_BUCKET = os.environ.get(
+    "MINIO_STORAGE_MEDIA_BACKUP_BUCKET", "Recycle Bin"
+)
+MINIO_STORAGE_MEDIA_BACKUP_FORMAT = os.environ.get("MINIO_STORAGE_MEDIA_BACKUP_FORMAT", "%c/")
+MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET = (
+    os.environ.get("MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET", "True").lower() == "true"
+)
+MINIO_STORAGE_STATIC_BUCKET_NAME = os.environ.get("MINIO_STORAGE_STATIC_BUCKET_NAME", "static")
+MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET = (
+    os.environ.get("MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET", "True").lower() == "true"
+)
 
 # Cache settings
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://redis:6379",
+        "LOCATION": os.environ.get("REDIS_URL", "redis://redis:6379"),
     }
 }
 
 # Elasticsearch settings
 ELASTICSEARCH_DSL = {
     "default": {
-        "hosts": "http://elasticsearch:9200",
+        "hosts": os.environ.get("ELASTICSEARCH_HOSTS", "http://elasticsearch:9200"),
     }
 }
 

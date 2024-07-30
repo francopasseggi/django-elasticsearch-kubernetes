@@ -4,4 +4,4 @@
 /**/__pycache__
 .pytest_cache
 .ruff_cache
-**/app-config.yaml
+app-config.yaml
